@@ -11,6 +11,8 @@ It also has tic-tac-toe, a school-grades "hack", a 45-second *Global Thermonucle
 
 ![The war room](docs/war-room.png)
 
+**▶ [Watch the 1½-minute demo](docs/MACK-demo-small.mp4)** (opens a player on GitHub). A higher-quality version is in the [latest release](https://github.com/paytonhull/mack/releases/latest).
+
 | Fly into any screen | Edit your grades | Global Thermonuclear War |
 |---|---|---|
 | ![CPU screen](docs/zoom-cpu.png) | ![School records](docs/zoom-grades.png) | ![The war show](docs/war-show.png) |
