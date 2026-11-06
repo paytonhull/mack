@@ -145,7 +145,7 @@ You can run `server.py` on its own with `python3 server.py`. Environment variabl
 - **M.A.C.K. code**: [MIT License](LICENSE).
 - **three.js** (r128): MIT, © three.js authors. See `vendor/LICENSE-three.txt`.
 - **Sound effects**: *Impact Sounds* by [Kenney](https://kenney.nl), CC0 (public domain). See `audio/fx/LICENSE-kenney-impact-sounds.txt`.
-- **Music**: *The Final Count* and *Lingering Dissonance*, made with [Suno](https://suno.com). See [`audio/MUSIC.md`](audio/MUSIC.md).
+- **Music**: *The Final Count* and *Lingering Dissonance* by paytonhull, made with [Suno](https://suno.com) (Premier plan), licensed CC BY 4.0. See [`audio/MUSIC.md`](audio/MUSIC.md).
 - More detail in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 **Disclaimer.** M.A.C.K. is an unofficial fan tribute inspired by the film *WarGames* (1983). It is not affiliated with or endorsed by the film's makers or rights holders and contains no material from the film other than a few brief, well-known lines of dialogue. "WarGames" and any related names belong to their respective owners.

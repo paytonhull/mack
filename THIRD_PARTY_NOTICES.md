@@ -6,7 +6,7 @@ M.A.C.K. bundles the following. Each keeps its own license.
 |---|---|---|---|
 | three.js r128 and its example add-ons (EffectComposer, UnrealBloomPass, shaders) | `vendor/` | MIT, © three.js authors (see `vendor/LICENSE-three.txt`) | <https://threejs.org> |
 | *Impact Sounds* 1.0 (a selection of 45 clips, converted to mono WAV) | `audio/fx/` | CC0 1.0, by Kenney (see `audio/fx/LICENSE-kenney-impact-sounds.txt`) | <https://kenney.nl/assets/impact-sounds> |
-| *The Final Count*, *Lingering Dissonance* | `audio/*.mp3` | See `audio/MUSIC.md` | made with Suno |
+| *The Final Count*, *Lingering Dissonance* | `audio/*.mp3` | CC BY 4.0, by paytonhull; made with Suno (Premier plan). See `audio/MUSIC.md` | <https://suno.com> |
 
 Fonts: none are bundled. The war room uses *Courier New* (or the system monospace font) from your Mac.
 
