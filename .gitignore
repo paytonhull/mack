@@ -1,0 +1,14 @@
+# build output
+MacMon.app/
+
+# local data and logs
+*.log
+history.json
+.DS_Store
+
+# editor / scratch
+.vscode/
+.idea/
+*.swp
+node_modules/
+frames*/

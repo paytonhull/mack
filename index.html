@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>macmon</title>
+<style>
+  :root {
+    --bg: #0c0c0d; --card: #151516; --line: #262628; --track: #2a2a2c;
+    --text: #f2f2f3; --muted: #8b8b91; --cpu: #3b82f6; --gpu: #f2622a; --mem: #19a874;
+    --ok: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px; }
+  .card { width: 100%; max-width: 480px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 24px; padding: 22px 24px 14px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  header { display: flex; align-items: center; gap: 12px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--ok);
+    box-shadow: 0 0 10px var(--ok); flex: none; }
+  .dot.off { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+  h1 { font-size: 22px; margin: 0; font-weight: 600; }
+  #wr { margin-left: auto; background: #0e2433; color: #7fe3ff; border: 1px solid #2c6a96; border-radius: 8px; padding: 5px 10px;
+    font: 600 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .1em; cursor: pointer; }
+  #wr:hover { background: #15405c; color: #fff; }
+  .sub { color: var(--muted); margin: 4px 0 0 26px; font-size: 13px; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .gauges { display: flex; justify-content: space-between; margin-top: 14px; }
+  .g { width: 31%; text-align: center; }
+  .g svg { width: 100%; display: block; }
+  .g .val { font-size: 31px; font-weight: 600; fill: var(--text); }
+  .g .lbl { color: var(--muted); letter-spacing: .12em; font-size: 12px; margin-top: -8px; }
+  .g .extra { margin-top: 8px; font-size: 13px; color: var(--muted); height: 26px;
+    display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .pill { background: #232325; padding: 3px 10px; border-radius: 12px; color: var(--text); display: inline-flex; gap: 6px; align-items: center; }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+  .legendrow { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: var(--muted); }
+  .legend span { margin-right: 14px; color: var(--text); font-size: 13px; }
+  .legend b { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  select { background: transparent; color: var(--muted); border: 0; font: inherit; cursor: pointer; }
+  canvas { width: 100%; height: 130px; display: block; margin-top: 6px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; margin-top: 16px; }
+  .k { color: var(--muted); letter-spacing: .1em; font-size: 12px; text-transform: uppercase; }
+  .v { font-size: 16px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar { height: 5px; border-radius: 3px; background: var(--track); margin-top: 8px; overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 3px; transition: width .6s; }
+  details { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 12px; color: var(--muted); }
+  summary { cursor: pointer; font-size: 15px; padding: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 6px; font-size: 13px; color: var(--text); }
+  th { text-align: left; color: var(--muted); font-weight: 400; font-size: 11px; letter-spacing: .1em; padding-bottom: 4px; }
+  td, th { padding: 4px 0; } td:nth-child(n+2), th:nth-child(n+2) { text-align: right; }
+  td:first-child { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { color: var(--muted); font-size: 12px; margin: 8px 0 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <header><span class="dot" id="dot"></span><h1 id="host">Mac</h1><button id="wr" title="Open the 3D war room">⬢ WAR ROOM</button></header>
+  <div class="sub" id="sub">connecting…</div>
+
+  <div class="gauges">
+    <div class="g"><svg viewBox="0 0 160 150" id="g-cpu"></svg><div class="lbl">CPU</div><div class="extra" id="x-cpu"></div></div>
+    <div class="g"><svg viewBox="0 0 160 150" id="g-gpu"></svg><div class="lbl">GPU</div><div class="extra" id="x-gpu"></div></div>
+    <div class="g"><svg viewBox="0 0 160 150" id="g-mem"></svg><div class="lbl">MEMORY</div><div class="extra" id="x-mem"></div></div>
+  </div>
+
+  <div class="legendrow">
+    <div class="legend"><span><b style="background:var(--cpu)"></b>CPU</span><span><b style="background:var(--gpu)"></b>GPU</span><span><b style="background:var(--mem)"></b>Memory</span></div>
+    <select id="range"><option value="3600">last hour</option><option value="600" selected>last 10 min</option><option value="300">last 5 min</option><option value="60">last 1 min</option></select>
+  </div>
+  <canvas id="chart"></canvas>
+
+  <div class="grid">
+    <div><div class="k">CPU</div><div class="v" id="cpu-name">–</div></div>
+    <div><div class="k">GPU</div><div class="v" id="gpu-name">–</div></div>
+    <div><div class="k">Unified memory</div><div class="v" id="mem-text">–</div><div class="bar"><i id="mem-bar" style="background:var(--mem)"></i></div></div>
+    <div><div class="k">GPU memory</div><div class="v" id="gmem-text">–</div><div class="bar"><i id="gmem-bar" style="background:var(--gpu)"></i></div></div>
+    <div><div class="k">Network</div><div class="v" id="net">–</div></div>
+    <div><div class="k">Disk I/O</div><div class="v" id="dio">–</div></div>
+    <div><div class="k">Disk /</div><div class="v" id="disk-text">–</div><div class="bar"><i id="disk-bar" style="background:#d6d3c9"></i></div></div>
+    <div><div class="k">Load avg</div><div class="v" id="load">–</div></div>
+  </div>
+
+  <details>
+    <summary>Details</summary>
+    <div class="meta" id="meta"></div>
+    <table><thead><tr><th>TOP PROCESSES</th><th>CPU</th><th>MEM</th></tr></thead><tbody id="procs"></tbody></table>
+  </details>
+</div>
+
+<script>
+const C = { cpu: '#3b82f6', gpu: '#f2622a', mem: '#19a874' };
+const $ = id => document.getElementById(id);
+const R = 62, CX = 80, CY = 80, START = 135, SWEEP = 270;
+const pt = a => [CX + R * Math.cos(a * Math.PI / 180), CY + R * Math.sin(a * Math.PI / 180)];
+function arc(from, to) {
+  const [x1, y1] = pt(from), [x2, y2] = pt(to);
+  return `M${x1} ${y1} A${R} ${R} 0 ${to - from > 180 ? 1 : 0} 1 ${x2} ${y2}`;
+}
+function gauge(id, pct, color) {
+  const end = START + SWEEP * Math.min(Math.max(pct, 0), 100) / 100;
+  $(id).innerHTML =
+    `<path d="${arc(START, START + SWEEP)}" fill="none" stroke="var(--track)" stroke-width="9" stroke-linecap="round"/>` +
+    (pct > 0.4 ? `<path d="${arc(START, Math.max(end, START + 3))}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round"/>` : '') +
+    `<text class="val" x="80" y="92" text-anchor="middle">${Math.round(pct)}%</text>`;
+}
+const B = (n, d = 1) => {
+  const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0;
+  while (n >= 1000 && i < 4) { n /= 1000; i++; }
+  return (i < 3 ? Math.round(n * (i ? 1 : 1)) : n.toFixed(d)).toString().replace(/\.0$/, '') + ' ' + u[i];
+};
+const rate = n => { const s = B(n, n >= 1e8 ? 0 : 1); return s.replace(/ (B|KB|MB|GB)$/, ' $1/s'); };
+const GB = n => (n / 1e9 >= 100 ? (n / 1e9).toFixed(0) : (n / 1e9).toFixed(1)) + ' GB';
+const dur = s => { const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`; };
+
+let hist = [], statics = null;
+
+function draw() {
+  const cv = $('chart'), dpr = devicePixelRatio || 1;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w * dpr; cv.height = h * dpr;
+  const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const L = 38, T = 6, Bt = 8, pw = w - L, ph = h - T - Bt;
+  g.font = '12px -apple-system, system-ui'; g.fillStyle = '#8b8b91'; g.strokeStyle = '#2a2a2c'; g.lineWidth = 1;
+  [[100, '100%'], [50, '50%'], [0, '0%']].forEach(([v, t]) => {
+    const y = T + ph * (1 - v / 100);
+    g.beginPath(); g.setLineDash([2, 4]); g.moveTo(L, y); g.lineTo(w, y); g.stroke(); g.setLineDash([]);
+    g.textBaseline = 'middle'; g.fillText(t, 0, y);
+  });
+  const n = +$('range').value, tEnd = hist.length ? hist[hist.length - 1].t : Date.now() / 1000;
+  const data = hist.filter(s => s.t > tEnd - n);
+  [['mem', C.mem], ['gpu', C.gpu], ['cpu', C.cpu]].forEach(([k, col]) => {
+    g.beginPath(); g.strokeStyle = col; g.lineWidth = 1.8; g.lineJoin = 'round';
+    data.forEach((s, i) => {
+      const x = L + pw * (1 - (tEnd - s.t) / n), y = T + ph * (1 - s[k] / 100);
+      (i && s.t - data[i - 1].t <= 5) ? g.lineTo(x, y) : g.moveTo(x, y);  // gap = app wasn't running
+    });
+    g.stroke();
+  });
+}
+
+function render(d) {
+  const s = d.static, n = d.now;
+  statics = s;
+  hist = hist.concat(d.history).slice(-3600);
+  if (!n.cpu && n.cpu !== 0) { draw(); return; }
+  $('host').textContent = s.host;
+  $('sub').textContent = `${s.os} · ${s.model} · up ${dur(n.uptime)}`;
+  gauge('g-cpu', n.cpu, C.cpu); gauge('g-gpu', n.gpu, C.gpu); gauge('g-mem', n.mem, C.mem);
+  $('x-cpu').textContent = `${s.cores} cores`;
+  $('x-gpu').textContent = s.gpu_cores ? `${s.gpu_cores} cores` : '';
+  $('x-mem').textContent = `${GB(n.mem_used)} / ${GB(n.mem_total)}`;
+  $('cpu-name').textContent = s.chip;
+  $('gpu-name').textContent = `${s.chip} GPU`;
+  $('mem-text').textContent = `${GB(n.mem_used)} / ${GB(n.mem_total)}`;
+  $('mem-bar').style.width = n.mem + '%';
+  $('gmem-text').textContent = `${GB(n.gpu_mem)} / ${GB(n.mem_total)}`;
+  $('gmem-bar').style.width = (100 * n.gpu_mem / n.mem_total) + '%';
+  $('net').textContent = `↓ ${rate(n.net_down)}  ↑ ${rate(n.net_up)}`;
+  $('dio').textContent = `R ${rate(n.disk_read)}  W ${rate(n.disk_write)}`;
+  $('disk-text').textContent = `${B(n.disk_used)} / ${B(n.disk_total)}`;
+  $('disk-bar').style.width = (100 * n.disk_used / n.disk_total) + '%';
+  $('load').textContent = n.load.map(x => x.toFixed(2)).join('  ');
+  $('meta').textContent = `Temperature sensors need root on macOS, so none are shown.`;
+  $('procs').innerHTML = n.procs.map(p =>
+    `<tr><td>${p.name.replace(/</g, '&lt;')}</td><td>${p.cpu.toFixed(1)}%</td><td>${B(p.mem)}</td></tr>`).join('');
+  draw();
+}
+
+async function poll() {
+  try {
+    const r = await fetch('/api/stats?since=' + (hist.length ? hist[hist.length - 1].t : 0)); render(await r.json());
+    $('dot').classList.remove('off');
+  } catch (e) { $('dot').classList.add('off'); }
+}
+$('wr').onclick = () => { const m = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.warroom; m ? m.postMessage(1) : window.open('/war', '_blank'); };
+$('range').onchange = draw;
+addEventListener('resize', draw);
+poll(); setInterval(poll, 1000);
+</script>
+</body>
+</html>
