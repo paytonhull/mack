@@ -133,6 +133,8 @@ You can run `server.py` on its own with `python3 server.py`. Environment variabl
 
 ## Privacy
 
+The full policy is in [PRIVACY.md](PRIVACY.md). In short:
+
 - M.A.C.K. reads **only** basic system counters (CPU, GPU, memory, network and disk totals, and the names of your busiest processes) and shows them on screen.
 - The server binds to `127.0.0.1` and is not reachable from other machines.
 - Nothing is uploaded and there is no telemetry.
