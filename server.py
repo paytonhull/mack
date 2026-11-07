@@ -16,6 +16,7 @@ import socket
 import subprocess
 import threading
 import time
+import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("PORT", 8765))
@@ -177,6 +178,30 @@ def sampler():
             save_history()
 
 
+UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+LIVE_CACHE = {}
+
+
+def live_video(channel):
+    """YouTube no longer embeds a channel's live stream directly, so ask which video the channel is live on right now."""
+    hit = LIVE_CACHE.get(channel)
+    if hit and time.time() - hit[0] < (300 if hit[1] else 60):
+        return hit[1]
+    vid = None
+    try:
+        req = urllib.request.Request(f"https://www.youtube.com/channel/{channel}/live?hl=en",
+                                     headers={"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            html = r.read(3_000_000).decode("utf-8", "ignore")
+        m = re.search(r'<link rel="canonical" href="https://www\.youtube\.com/watch\?v=([\w-]{11})"', html)
+        if m and '"isLive":true' in html:
+            vid = m.group(1)
+    except Exception:
+        pass
+    LIVE_CACHE[channel] = (time.time(), vid)
+    return vid
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
@@ -196,6 +221,9 @@ class Handler(BaseHTTPRequestHandler):
                 hist = [h for h in state["history"] if h["t"] > since]
                 body = json.dumps({"static": STATIC, "now": state["now"], "history": hist})
             self.send(body.encode(), "application/json")
+        elif self.path.startswith("/api/live"):
+            m = re.search(r"channel=(UC[\w-]{20,})", self.path)
+            self.send(json.dumps({"id": live_video(m.group(1)) if m else None}).encode(), "application/json")
         elif self.path.startswith("/audio/"):
             parts = [p for p in self.path.split("?")[0].split("/")[2:] if p]
             name = os.path.basename(parts[-1]) if parts else ""

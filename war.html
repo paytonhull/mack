@@ -557,8 +557,15 @@ const Feed = {
     return null;
   },
   name() { return this.custom ? 'CUSTOM' : this.PRESETS[this.cur][0]; },
-  load(i) { this.cur = i; this.custom = null; this.setSrc(this.embed(this.PRESETS[i][1])); },
-  go(text) { const e = this.embed(text); if (e) { this.custom = text; this.setSrc(e); } },
+  tk: 0,
+  // a channel id can't be embedded as "live" any more, so look up the video it is streaming right now
+  async resolve(u) {
+    const m = (u || '').match(/^(UC[\w-]{20,})$/) || (u || '').match(/channel\/(UC[\w-]{20,})/);
+    if (m) { try { const r = await (await fetch('/api/live?channel=' + m[1])).json(); if (r.id) return `https://www.youtube.com/embed/${r.id}?autoplay=1&mute=1&playsinline=1&rel=0`; } catch (e) { } }
+    return this.embed(u);
+  },
+  async load(i) { this.cur = i; this.custom = null; const t = ++this.tk, src = await this.resolve(this.PRESETS[i][1]); if (src && t === this.tk) this.setSrc(src); },
+  async go(text) { const t = ++this.tk, src = await this.resolve(text); if (src && t === this.tk) { this.custom = text; this.setSrc(src); } },
   setSrc(src) { this.frameEl.style.display = 'block'; this.frameEl.src = src; },
   rect(s, x0, y0, x1, y1) {
     const p = [[x0, y0], [x1, y1]].map(([fx, fy]) => { const v = new THREE.Vector3((fx - .5) * s.w, (.5 - fy) * s.h, 0); s.mesh.localToWorld(v); v.project(camera);

@@ -83,7 +83,7 @@ To stop it: click the menu-bar readout, right-click for the menu, and choose **Q
 **The screens**
 
 Top row: system status, CPU, GPU, unified memory, network traffic.
-Bottom row: tic-tac-toe (it plays back), disk I/O, a games menu, top processes, load average, DEFCON, a live YouTube feed, and school records.
+Bottom row: tic-tac-toe (it plays back), disk I/O, a games menu, top processes, load average, DEFCON, a live YouTube feed (needs internet; paste any video link, video ID or channel link), and school records.
 
 The **DEFCON board** above the screens follows your machine: the busiest of CPU, GPU and memory pressure sets the level (below 40% is DEFCON 5, above 90% is DEFCON 1). Press *Test alert* on the DEFCON screen to see it flash.
 
@@ -137,7 +137,7 @@ You can run `server.py` on its own with `python3 server.py`. Environment variabl
 - The server binds to `127.0.0.1` and is not reachable from other machines.
 - Nothing is uploaded and there is no telemetry.
 - The only data kept on disk is an hour of CPU/GPU/memory history at `~/Library/Application Support/MacMon/history.json`. Delete it any time.
-- The one feature that touches the internet is the optional **Live Feed** screen, which embeds a YouTube video you choose.
+- The one feature that touches the internet is the optional **Live Feed** screen. It embeds a YouTube video, and for a channel (such as NASA or Sky News) your Mac's local server asks YouTube which stream that channel is live on right now. Nothing else is sent, and nothing is used when you don't open that screen.
 - Your Mac's hostname appears on the system-status screen and the dashboard. Set `MACMON_HOST=anything` before recording a screen capture if you don't want it shown.
 
 ---
