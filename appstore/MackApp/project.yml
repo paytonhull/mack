@@ -1,0 +1,66 @@
+name: MACK
+options:
+  bundleIdPrefix: io.github.paytonhull
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+targets:
+  MACK:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Assets.xcassets
+      - path: Resources/PrivacyInfo.xcprivacy
+      - path: Resources/Credits.html
+        buildPhase: resources
+    entitlements:
+      path: MackApp.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    info:
+      path: Info.plist
+      properties:
+        CFBundleName: M.A.C.K.
+        CFBundleDisplayName: M.A.C.K.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: "© 2026 The M.A.C.K. authors"
+        ITSAppUsesNonExemptEncryption: false
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoadsInWebContent: false
+    settings:
+      base:
+        PRODUCT_NAME: MACK
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.paytonhull.mack
+        ARCHS: arm64
+        ONLY_ACTIVE_ARCH: NO
+        EXCLUDED_ARCHS: x86_64
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        COMBINE_HIDPI_IMAGES: YES
+    preBuildScripts: []
+    postBuildScripts:
+      - name: Copy web assets
+        basedOnDependencyAnalysis: false
+        script: |
+          set -e
+          DEST="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Resources/web"
+          rm -rf "$DEST"; mkdir -p "$DEST/audio"
+          SRC="${SRCROOT}/../.."
+          python3 "${SRCROOT}/../tools/make-store-web.py" >/dev/null     # store wording (see appstore/tools/make-store-web.py)
+          cp "${SRCROOT}/../web/index.html" "${SRCROOT}/../web/war.html" "$DEST/"
+          cp -R "$SRC/vendor" "$DEST/vendor"
+          cp "$SRC"/audio/*.mp3 "$DEST/audio/"
+          cp -R "$SRC/audio/fx" "$DEST/audio/fx"

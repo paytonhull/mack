@@ -566,7 +566,10 @@ const Feed = {
   },
   async load(i) { this.cur = i; this.custom = null; const t = ++this.tk, src = await this.resolve(this.PRESETS[i][1]); if (src && t === this.tk) this.setSrc(src); },
   async go(text) { const t = ++this.tk, src = await this.resolve(text); if (src && t === this.tk) { this.custom = text; this.setSrc(src); } },
-  setSrc(src) { this.frameEl.style.display = 'block'; this.frameEl.src = src; },
+  // inside the native app the video lives in a separate overlay web view (a custom-scheme page can't embed YouTube), so we just tell it where and what
+  native: !!(window.webkit && webkit.messageHandlers && webkit.messageHandlers.feed), nsrc: '', nrect: null, shown: false,
+  push(show) { const v = this.nrect; if (v) webkit.messageHandlers.feed.postMessage({ show, src: this.nsrc, x: v.x, y: v.y, w: v.w, h: v.h }); },
+  setSrc(src) { if (this.native) { this.nsrc = src; if (this.shown) this.push(true); return; } this.frameEl.style.display = 'block'; this.frameEl.src = src; },
   rect(s, x0, y0, x1, y1) {
     const p = [[x0, y0], [x1, y1]].map(([fx, fy]) => { const v = new THREE.Vector3((fx - .5) * s.w, (.5 - fy) * s.h, 0); s.mesh.localToWorld(v); v.project(camera);
       return [(v.x + 1) / 2 * innerWidth, (1 - v.y) / 2 * innerHeight]; });
@@ -574,11 +577,11 @@ const Feed = {
   },
   place(s) {
     camera.updateMatrixWorld(); const v = this.rect(s, .03, .17, .97, .85), b = this.rect(s, .03, .875, .97, .975);
-    Object.assign(this.frameEl.style, { left: v.x + 'px', top: v.y + 'px', width: v.w + 'px', height: v.h + 'px' });
+    if (this.native) { this.nrect = v; if (this.shown && this.nsrc) this.push(true); } else Object.assign(this.frameEl.style, { left: v.x + 'px', top: v.y + 'px', width: v.w + 'px', height: v.h + 'px' });
     Object.assign(this.barEl.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px', display: 'flex' });
   },
-  open(s) { this.place(s); if (!this.frameEl.src || this.frameEl.src === 'about:blank' || this.frameEl.src === location.href) this.load(this.cur); else this.frameEl.style.display = 'block'; },
-  hide() { this.frameEl.style.display = 'none'; this.frameEl.src = 'about:blank'; this.barEl.style.display = 'none'; },
+  open(s) { this.place(s); if (this.native) { this.shown = true; if (this.nsrc) this.push(true); else this.load(this.cur); return; } if (!this.frameEl.src || this.frameEl.src === 'about:blank' || this.frameEl.src === location.href) this.load(this.cur); else this.frameEl.style.display = 'block'; },
+  hide() { if (this.native) { this.shown = false; this.nsrc = ''; this.nrect && this.push(false); } this.frameEl.style.display = 'none'; this.frameEl.src = 'about:blank'; this.barEl.style.display = 'none'; },
 };
 SCREENS_DEF.push({ id: 'feed', title: 'LIVE FEED', fps: 6, draw(s, c, w, h, t, d) {
   clear(c, w, h); const P = 24;

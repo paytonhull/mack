@@ -12,3 +12,8 @@ history.json
 *.swp
 node_modules/
 frames*/
+
+# Mac App Store edition build output
+appstore/MackApp/build/
+appstore/MackApp/MACK.app
+appstore/web/

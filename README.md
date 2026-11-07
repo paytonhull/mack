@@ -56,6 +56,10 @@ cd mack
 
 That opens the war room at <http://localhost:8765/war>. (The menu-bar icon needs the app build above.)
 
+### Mac App Store edition
+
+A sandboxed edition for the Mac App Store is in preparation. It is **not available yet**. Its source is in [`appstore/`](appstore/README.md) if you are curious or want to build it yourself.
+
 ### If macOS complains
 
 - *"Command not found: swiftc"*: run `xcode-select --install`, wait for it to finish, and try again.

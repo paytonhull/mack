@@ -1,0 +1,41 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:transparent;width:1024px;height:1024px">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+ <defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b2540"/><stop offset=".55" stop-color="#050f1c"/><stop offset="1" stop-color="#01040a"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".3" r=".6"><stop offset="0" stop-color="#2f8fe0" stop-opacity=".45"/><stop offset="1" stop-color="#2f8fe0" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000" flood-opacity=".5"/></filter>
+  <filter id="neon" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="neon2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <clipPath id="body"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+ </defs>
+ <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)" filter="url(#shadow)"/>
+ <g clip-path="url(#body)">
+  <rect x="100" y="100" width="824" height="824" fill="url(#glow)"/>
+  <!-- floor grid -->
+  <g stroke="#2d7fc0" stroke-opacity=".35" stroke-width="3">
+   <path d="M100 800 H924 M100 850 H924 M100 905 H924"/>
+   <path d="M512 760 L512 924 M400 760 L250 924 M624 760 L774 924 M300 760 L40 924 M724 760 L984 924"/>
+  </g>
+  <!-- top row of screens -->
+  <g fill="#06182a" stroke="#6cd0ff" stroke-width="9" filter="url(#neon)">
+   <rect x="170" y="205" width="210" height="190" rx="14"/><rect x="407" y="205" width="210" height="190" rx="14"/><rect x="644" y="205" width="210" height="190" rx="14"/>
+  </g>
+  <!-- bottom row -->
+  <g fill="#06182a" stroke="#6cd0ff" stroke-width="8" filter="url(#neon)">
+   <rect x="170" y="450" width="156" height="140" rx="12"/><rect x="346" y="450" width="156" height="140" rx="12"/><rect x="522" y="450" width="156" height="140" rx="12"/><rect x="698" y="450" width="156" height="140" rx="12"/>
+  </g>
+  <!-- screen contents: sparklines, DEFCON 4, bars -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#neon)">
+   <path d="M192 360 L225 330 L255 345 L290 285 L320 325 L355 300" stroke="#6cd0ff" stroke-width="9"/>
+   <path d="M668 365 L700 320 L735 340 L770 275 L805 310 L835 285" stroke="#ff8a3d" stroke-width="9"/>
+  </g>
+  <text x="512" y="372" font-family="Courier New, Menlo, monospace" font-weight="700" font-size="170" text-anchor="middle" fill="#c8ff3a" filter="url(#neon2)">4</text>
+  <g fill="#3dff9a" filter="url(#neon)"><rect x="196" y="535" width="16" height="30"/><rect x="224" y="515" width="16" height="50"/><rect x="252" y="545" width="16" height="20"/><rect x="280" y="500" width="16" height="65"/></g>
+  <g fill="none" stroke="#6cd0ff" stroke-width="7" filter="url(#neon)"><path d="M372 560 L400 520 L428 545 L456 480 L482 520"/></g>
+  <g stroke="#6cd0ff" stroke-width="6" filter="url(#neon)"><path d="M548 480 H650 M548 505 H620 M548 530 H650 M548 555 H600"/></g>
+  <text x="776" y="545" font-family="Courier New, Menlo, monospace" font-weight="700" font-size="74" text-anchor="middle" fill="#ffd23a" filter="url(#neon)">3.2</text>
+  <!-- console lights -->
+  <g filter="url(#neon)"><circle cx="250" cy="710" r="9" fill="#ff8a3d"/><circle cx="330" cy="722" r="9" fill="#3dff9a"/><circle cx="420" cy="706" r="9" fill="#ff3b30"/><circle cx="512" cy="722" r="9" fill="#ffffff"/><circle cx="604" cy="706" r="9" fill="#ffd23a"/><circle cx="694" cy="722" r="9" fill="#3dff9a"/><circle cx="774" cy="710" r="9" fill="#ff8a3d"/></g>
+ </g>
+ <rect x="100" y="100" width="824" height="824" rx="185" fill="none" stroke="#9fe6ff" stroke-opacity=".25" stroke-width="3"/>
+</svg>
