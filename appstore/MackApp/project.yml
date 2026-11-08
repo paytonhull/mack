@@ -8,7 +8,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2"
     ENABLE_USER_SCRIPT_SANDBOXING: NO
 targets:
   MACK:
@@ -64,3 +64,5 @@ targets:
           cp -R "$SRC/vendor" "$DEST/vendor"
           cp "$SRC"/audio/*.mp3 "$DEST/audio/"
           cp -R "$SRC/audio/fx" "$DEST/audio/fx"
+          # the App Store rejects files carrying the com.apple.quarantine attribute (anything downloaded from the web has it)
+          xattr -cr "$DEST" || true

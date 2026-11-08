@@ -14,6 +14,7 @@ cp -R $SRC/vendor $APP/Contents/Resources/web/vendor
 mkdir -p $APP/Contents/Resources/web/audio
 cp $SRC/audio/*.mp3 $APP/Contents/Resources/web/audio/
 cp -R $SRC/audio/fx $APP/Contents/Resources/web/audio/fx
+xattr -cr $APP/Contents/Resources || true   # no quarantine attributes (the App Store rejects them)
 cat > $APP/Contents/Info.plist <<P
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
